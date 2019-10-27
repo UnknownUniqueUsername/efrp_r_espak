@@ -14,7 +14,7 @@ adat_kezdo = "2010-01-01"
 adat_vegso = "2016-12-31"
 
 decent<-as.integer(as.Date(kezdo_datum)-as.Date(adat_kezdo))
-i= decent + kesleltet+1 #az elő adatsort eltolom
+i= decent + kesleltet+1 #az elozo adatsort eltolom
 output= NULL
 korr_darab<-NROW(WTI2$CL1)-ablak_meret
 vegso<-as.integer(as.Date(veg_datum)-as.Date(adat_kezdo))+1
@@ -31,7 +31,7 @@ dim(output)
 dates <- as.Date(WTI2$Date[(decent+ablak_meret + kesleltet+1):vegso])
 
 alma<-(cbind(dates, output))
-plot(V2 ~ dates, alma, xaxt = "n", type = "l", xlab="Dátum", ylab="Korreláció", main="Dinamikus korreláció" )
+plot(V2 ~ dates, alma, xaxt = "n", type = "l", xlab="Datum", ylab="Korrelacio", main="Dinamikus korrelacio" )
 axis(1, dates, format(dates, "20%y %b %d"), cex.axis = .7)
 
 #plot(V2 ~ V1, alma, xaxt = "n", type = "l", xlab="dátum", ylab="korreláció", main="Dinamikus korreláció" )
