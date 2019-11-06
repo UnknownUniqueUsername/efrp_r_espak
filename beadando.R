@@ -98,7 +98,7 @@ check_parameters <-
       return(FALSE)
       
       # Ha karakterek, akkor megnézzük, hogy a fájlban megadott intervallumba esnek-e
-    } else if (kezdo_datum <= adat_kezdo || veg_datum > adat_vegso) {
+    } else if (kezdo_datum < adat_kezdo || veg_datum > adat_vegso) {
       print(
         paste(
           "Kérjük olyan dátumot adjon meg, ami az elemzés intervallumába beleesik:",
