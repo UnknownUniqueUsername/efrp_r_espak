@@ -174,7 +174,7 @@ calculate_correlation <-
   }
 
 # Egy rövid vizsgálat, hogy az eredményeink megfelelnek-e a valóságnak
-# A korreláció 0-1 intervallumon mozog.
+# A korreláció [-1, 1] intervallumon mozog.
 check_results <- function(results) {
   
   # Az eredmény mátrixon végigiterálva, megnézzük van-e 1 nél nagyobb
