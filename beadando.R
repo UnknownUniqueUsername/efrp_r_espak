@@ -1,4 +1,13 @@
-library(tidyverse)
+require(tidyverse)
+require(readxl)
+
+#kezdo_datum = "2015-01-01" #paraméter, mikortól kezdődjön a korreláció számítása
+#veg_datum = "2016-12-31" #paraméter, meddig tartson a korreláció számítása
+#kesleltet<-100 #paraméter, mennyivel történjen a késleltetés
+#ablak_meret<-100 #paraméter, mekkora időintervallumon történjen a korreláció számítása
+#X = 1 #paraméter, melyik eszköz (ez lesz eltolva)
+#Y = 2 #paraméter, melyik másik eszköz
+#tipp: az ablak_meret 5-nél nem lehet kisebb
 
 korrelacio <-
   function(kezdo_datum = "2010-01-01",
@@ -7,12 +16,7 @@ korrelacio <-
            ablak_meret = 100,
            X = 1,
            Y = 2) {
-    #kezdo_datum = "2015-01-01" #paraméter, mikortól kezdődjön a korreláció számítása
-    #veg_datum = "2016-12-31" #paraméter, meddig tartson a korreláció számítása
-    #kesleltet<-100 #paraméter, mennyivel történjen a késleltetés
-    #ablak_meret<-100 #paraméter, mekkora időintervallumon történjen a korreláció számítása
-    #X = 1 #paraméter, melyik eszköz (ez lesz eltolva)
-    #Y = 2 #paraméter, melyik másik eszköz
+    
     
     # Átalakítjuk dátummá
     kezdo_datum = as.Date(kezdo_datum)
@@ -65,6 +69,7 @@ korrelacio <-
     
     # Átalakítjuk az adathalmazunk tibble-re, hogy szebben tudjuk ábrázolni.
     tibble_data <- as_tibble(data_plot)
+    
     tibble_data$Dates <-
       as.Date(tibble_data$Dates, origin = "1970-01-01")
     
@@ -117,6 +122,16 @@ check_parameters <-
       print("Kérjük a dátumokon kívüli paramétereket egész számok formájában adja meg.")
       return(FALSE)
       
+      # Ellenőrizzük, hogy megfelelő intevallumban kaptuk-e meg a paramétereket (pl. az ablak_meret nem negatív)
+    } else if (kesleltet < 0 || X < 1 || X > 24 || Y < 1 || Y > 24 ) {
+      print("Kérjük megfelelő intevallumban adja meg a paramétereket (pl. a késleltetés ne legyen negatív).")
+      return(FALSE)
+      
+      # Ablak méret ellenőrzése, 5-nél kisebbet nem fogadunk el.
+    } else if (ablak_meret <= 4) {
+      print("Az ablak_meret nem lehet 5-nél kisebb.")
+      return(FALSE)
+      
       # Ellenőrizzük, hogy az ablak méret és a késleltetés összege kisebb nagyobb-e, mint az elemzendő intervallum
     } else if (as.integer(as.Date(veg_datum) - as.Date(kezdo_datum)) <= (kesleltet + ablak_meret)) {
       print("Adjon meg bővebb intervallumot, vagy csekélyebb ablak méretet és késleltetést!")
@@ -146,8 +161,32 @@ calculate_correlation <-
       output = rbind(output, correlation) # ez lesz a korreláció vektora
       i = i + 1 # Tovább lépés
     }
-    return(output)
+    
+    # Ellenőrzés, hogy nagyjából megfelelő erdményt kaptunk-e.
+    # Ha nem, akkor megszakítja a program futását.
+    if(check_results(output)){
+      return(output)
+    } else {
+      print("A korreláció számítása során nem jó adatokat kaptunk.")
+      stop("Wrong Results")
+    }
+    
   }
+
+# Egy rövid vizsgálat, hogy az eredményeink megfelelnek-e a valóságnak
+# A korreláció 0-1 intervallumon mozog.
+check_results <- function(results) {
+  
+  # Az eredmény mátrixon végigiterálva, megnézzük van-e 1 nél nagyobb
+  # vagy 0-nál kisebb szám.
+  for(row in 1:nrow(results)){
+    if (results[row, 1] < -1.0000 || results[row, 1] > 1.0000){
+      return(FALSE)
+    }
+  }
+  
+  return(TRUE)
+}
 
 
 # Ábrázolás, a paraméterek kiírásához szükséges azok átadása, paraméterként.
@@ -179,12 +218,12 @@ plot_data_function <-
           "\nMásodik adathalmaz: ",
           loc_Y
         )
-      )
-    #scale_x_date(date_labels = "%b %Y")
+      ) + 
+    scale_x_date(date_breaks = "1 year", date_labels = "%Y")
     
     plot(gg)
     
   }
 
 
-korrelacio("2010-01-01", "2016-12-31", 2, 100, 1, 2)
+korrelacio("2010-01-01", "2016-12-31", 0, 10, 1, 2)
